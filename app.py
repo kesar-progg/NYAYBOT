@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template_string
 from main_pipeline import run_nyaybot
 from database import save_case, get_all_cases, get_stats, get_case_by_id
 from tracker import TRACKER_HTML
+from analytics import ANALYTICS_HTML
 app = Flask(__name__)
 
 HTML = '''
@@ -864,12 +865,13 @@ def tracker():
     cases = get_all_cases()
     return render_template_string(TRACKER_HTML, cases=cases)
 
-@app.route('/api/cases')
-def api_cases():
-    return jsonify(get_all_cases())
-
 @app.route('/api/stats')
 def api_stats():
     return jsonify(get_stats())
+
+@app.route('/analytics')
+def analytics():
+    return render_template_string(ANALYTICS_HTML)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
