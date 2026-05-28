@@ -3,6 +3,7 @@ from main_pipeline import run_nyaybot
 from database import save_case, get_all_cases, get_stats, get_case_by_id
 from tracker import TRACKER_HTML
 from analytics import ANALYTICS_HTML
+from chat import chat_with_nyaybot, CHAT_HTML
 app = Flask(__name__)
 
 HTML = '''
@@ -873,5 +874,15 @@ def api_stats():
 def analytics():
     return render_template_string(ANALYTICS_HTML)
 
+@app.route('/chat')
+def chat_page():
+    return render_template_string(CHAT_HTML)
+
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    data = request.json
+    messages = data.get('messages', [])
+    response = chat_with_nyaybot(messages)
+    return jsonify({'response': response})
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
