@@ -4,6 +4,7 @@ from database import save_case, get_all_cases, get_stats, get_case_by_id
 from tracker import TRACKER_HTML
 from analytics import ANALYTICS_HTML
 from chat import chat_with_nyaybot, CHAT_HTML
+from notifications import generate_notifications_from_case, get_notifications, get_unread_count, mark_all_read, NOTIFICATIONS_HTML
 app = Flask(__name__)
 
 HTML = '''
@@ -860,6 +861,7 @@ def process_case():
 
     
     save_case(case)
+    generate_notifications_from_case(case)
     return jsonify(case)
 @app.route('/tracker')
 def tracker():
@@ -884,5 +886,22 @@ def api_chat():
     messages = data.get('messages', [])
     response = chat_with_nyaybot(messages)
     return jsonify({'response': response})
+
+@app.route('/notifications')
+def notifications_page():
+    return render_template_string(NOTIFICATIONS_HTML)
+
+@app.route('/api/notifications')
+def api_notifications():
+    return jsonify(get_notifications())
+
+@app.route('/api/notifications/unread')
+def api_unread():
+    return jsonify({'count': get_unread_count()})
+
+@app.route('/api/notifications/read', methods=['POST'])
+def api_mark_read():
+    mark_all_read()
+    return jsonify({'status': 'ok'})
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
